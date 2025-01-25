@@ -43,7 +43,7 @@ app.use(express.json());
 app.use(cookieSession({
   name: 'session',
   secret: process.env.SESSION_SECRET || 'secretkey',
-  maxAge: 1000 * 60 * 60 * 24 // 24 hours
+  maxAge: 1000 * 60 // 24 hours
 }));
 
 // Routes
