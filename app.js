@@ -1,12 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const argon2 = require('argon2');  // Use argon2 for password hashing
+const cookieSession = require('cookie-session');  // Use cookie-session for session management
 const dotenv = require('dotenv');
 const path = require('path');
-const { type } = require('os');
-const { strict } = require('assert');
 
 dotenv.config();
 
@@ -34,12 +31,10 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(session({
+app.use(cookieSession({
+  name: 'session',
   secret: process.env.SESSION_SECRET || 'secretkey',
-  resave: false,
-  saveUninitialized: true,
-  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-  cookie: { maxAge: 1000 * 60 }
+  maxAge: 1000 * 60 * 60 * 24 // 24 hours
 }));
 
 // Routes
@@ -52,10 +47,10 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const {email, username, password } = req.body;
+  const { email, username, password } = req.body;
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email,username, password: hashedPassword });
+    const hashedPassword = await argon2.hash(password);  // Hash password using argon2
+    const newUser = new User({ email, username, password: hashedPassword });
     await newUser.save();
     res.redirect('/login');
   } catch (error) {
@@ -70,7 +65,7 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  if (user && await bcrypt.compare(password, user.password)) {
+  if (user && await argon2.verify(user.password, password)) {  // Verify password using argon2
     req.session.userId = user._id;
     res.redirect('/dashboard');
   } else {
@@ -79,25 +74,18 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).send('Error logging out');
-    }
-    res.redirect('/');
-  });
+  req.session = null; // Clears the session
+  res.redirect('/');
 });
 
 app.get('/dashboard', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
   }
-  else{
-    const user = await User.findById(req.session.userId);
-    if (user) {
-        res.render('dashboard', { username: user.username });
-      }
+  const user = await User.findById(req.session.userId);
+  if (user) {
+    res.render('dashboard', { username: user.username });
   }
-
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
