@@ -1,21 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const argon2 = require('argon2');  // Use argon2 for password hashing
-const cookieSession = require('cookie-session');  // Use cookie-session for session management
+const argon2 = require('argon2'); // Use argon2 for password hashing
+const cookieSession = require('cookie-session'); // Use cookie-session for session management
 const dotenv = require('dotenv');
 const path = require('path');
 
-dotenv.config();
+dotenv.config(); // Load environment variables from .env file
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Ensure MONGO_URI is defined
+if (!process.env.MONGO_URI) {
+  console.error("MongoDB URI is not defined. Please check your .env file.");
+  process.exit(1); // Stop the application if the URI is not set
+}
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
+}).then(() => {
+  console.log('MongoDB Connected');
+}).catch((err) => {
+  console.error('MongoDB Connection Error:', err);
+});
 
 // User schema & model
 const userSchema = new mongoose.Schema({
