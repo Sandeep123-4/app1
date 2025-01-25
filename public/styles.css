@@ -1,0 +1,120 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+body, html{
+    background: linear-gradient(90deg,#17202a, #2c3e50);
+    color: #eaecee;
+}
+
+/* index page start */
+.nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #566573;
+    padding: 10px;
+    font-style: italic;
+}
+.nav a {
+    color:#17202a;
+    text-decoration: none;
+    font-size: 25px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.sign{
+    width: 12%;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+.material-symbols-outlined{
+    color: #2c3e50;
+}
+.material-symbols-outlined:hover{
+    color: #d5d8dc;
+}
+.nav a:hover{
+    color: #d5d8dc;
+}
+/* index page end */
+
+/*register page and login page*/
+
+.BODY{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+form{
+    background-color: #808b96;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+form input{
+    height: 25px;
+    width: 80%;
+    align-self: center;
+    border: none;
+    border-radius: 5px;
+    padding: 4px;
+}
+form button{
+    width: 20%;
+    align-self: center;
+    padding: 3px;
+    border-radius: 2px;
+    border: none;
+    background-color: #566573;
+    color: #641e16;
+}
+.form a {
+    text-decoration: none;
+}
+.form{
+    width: 30%;
+    background-color: #808b96;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 20px;
+    gap: 10px;
+    align-content: center;
+    text-align: center;
+}
+
+/* register page and login page end  */
+
+
+/*dasgboard*/
+.nav p{
+    text-align: center;
+    width: 10%;
+    background-color: #17202a;
+    color: #eaecee;
+    padding: 5px;
+    border-radius: 20px;
+    font-size: 25px;
+    cursor: pointer;
+}
+.links{
+    width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 0;
+    padding-left: 20px;
+}
+.links a{
+    font-size: 20px;
+}
+.nav .user{
+    width:60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*dasgboard end*?
