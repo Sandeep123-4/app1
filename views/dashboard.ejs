@@ -12,15 +12,50 @@
             <a href="">SERVICES</a>
         </div>
         <div class="user">
-            <p><%= username %> </p>
-            <form action="/logout" method="POST">
-                <button type="submit">Logout</button>
-            </form>
+            <p class="acnt"><%= username %> <sub>more</sub></p>
         </div>
-  
-
-   
     </div>
+
+    <div id="account">
+        <p class="acnt acnt2"><%= username %> <sub>less</sub> </p>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <h1>hello</h1>
+        <form class="logout"  action="/logout" method="POST">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+     <main>
+        <section id="home">
+            <h2>Home</h2>
+            <p>Welcome to our website, where creativity meets innovation.</p>
+        </section>
+        <section id="about">
+            <h2>About Us</h2>
+            <p>We are a team dedicated to delivering excellence in every project.</p>
+        </section>
+        <section id="services">
+            <h2>Our Services</h2>
+            <p>We provide top-notch solutions tailored to your needs.</p>
+        </section>
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Reach out to us for more information and collaborations.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Explore Our World. All Rights Reserved.</p>
+    </footer>
     
+
+
+    <script src="script.js"></script>
 </body>
 </html>
