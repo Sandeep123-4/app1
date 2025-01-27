@@ -4,6 +4,22 @@ const argon2 = require('argon2'); // Use argon2 for password hashing
 const cookieSession = require('cookie-session'); // Use cookie-session for session management
 const dotenv = require('dotenv');
 const path = require('path');
+const multer = require('multer');
+let img; // Changed to let since it will be reassigned
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    return cb(null, './uploads');
+  },
+  filename: function (req, file, cb) {
+    // Fixed img assignment - cb returns undefined
+    const filename = `${Date.now()}-${file.originalname}`;
+    img = filename;
+    cb(null, filename);
+  }
+});
+
+const upload = multer({ storage });
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -28,7 +44,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // User schema & model
 const userSchema = new mongoose.Schema({
-  email   :{type:String, require:true , unique:true},
+  email: {type: String, required: true, unique: true}, // Fixed typo in required
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true }
 });
@@ -36,8 +52,9 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // Middleware
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs'); // Removed duplicate app declaration
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads')); // Added to serve uploaded files
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieSession({
@@ -55,14 +72,21 @@ app.get('/register', (req, res) => {
   res.render('register');
 });
 
-app.post('/register', async (req, res) => {
-  const { email, username, password } = req.body;
+app.post('/register', upload.single("image"), async (req, res) => {
+  const {email, username, password } = req.body;
   try {
-    const hashedPassword = await argon2.hash(password);  // Hash password using argon2
+    // Check if user already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).send('User already exists');
+    }
+    
+    const hashedPassword = await argon2.hash(password);
     const newUser = new User({ email, username, password: hashedPassword });
     await newUser.save();
     res.redirect('/login');
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(400).send('Error registering user');
   }
 });
@@ -73,12 +97,17 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (user && await argon2.verify(user.password, password)) {  // Verify password using argon2
-    req.session.userId = user._id;
-    res.redirect('/dashboard');
-  } else {
-    res.status(400).send('Invalid username or password');
+  try {
+    const user = await User.findOne({ email });
+    if (user && await argon2.verify(user.password, password)) {
+      req.session.userId = user._id;
+      res.redirect('/dashboard');
+    } else {
+      res.status(400).send('Invalid email or password');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).send('Server error');
   }
 });
 
@@ -91,9 +120,17 @@ app.get('/dashboard', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
   }
-  const user = await User.findById(req.session.userId);
-  if (user) {
-    res.render('dashboard', { username: user.username });
+  try {
+    const user = await User.findById(req.session.userId);
+    if (user) {
+      res.render('dashboard', { img: `/uploads/${img}`, username: user.username });
+    } else {
+      req.session = null;
+      res.redirect('/login');
+    }
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).send('Server error');
   }
 });
 
